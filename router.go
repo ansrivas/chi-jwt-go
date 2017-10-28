@@ -105,7 +105,10 @@ func NewRouter() *chi.Mux {
 	router.Post("/login", LoginHandler)
 
 	// Protected Endpoints
-	router.With(ValidateTokenMiddleware).Get("/resource", ProtectedHandler)
+	router.Group(func(r chi.Router) {
+		r.Use(ValidateTokenMiddleware)
+		r.Get("/resource", ProtectedHandler)
+	})
 
 	return router
 }
