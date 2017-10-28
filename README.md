@@ -9,12 +9,12 @@ Install:
 
 * Clone the project and run
 
-	`go get -u github.com/ansrivas/chi-jwt`
+	`go get -u github.com/ansrivas/chi-jwt-go`
 
 
 * Create a directory named `keys` and copy the keys from the repository
 
-* Execute your program as `chi-jwt -keyPath keys`
+* Execute your program as `chi-jwt-go -keyPath keys`
 
 * Install [httpie](https://github.com/jakubroztocil/httpie) ( super awesome curl alternative )
 
