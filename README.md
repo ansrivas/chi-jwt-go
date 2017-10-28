@@ -20,28 +20,28 @@ Install:
 
 * Authenticate to the service:
 ```
-	$ http POST localhost:8080/login username="someone" password="p@assword"
+$ http POST localhost:8080/login username="someone" password="p@assword"
 
-	HTTP/1.1 200 OK
-	Content-Length: 439
-	Content-Type: text/plain; charset=utf-8
-	Date: Sat, 28 Oct 2017 01:12:20 GMT
-	Strict-Transport-Security: max-age=63072000; includeSubDomains
+HTTP/1.1 200 OK
+Content-Length: 439
+Content-Type: text/plain; charset=utf-8
+Date: Sat, 28 Oct 2017 01:12:20 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains
 
-	{"token":"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MDkxNTY3NDAsImlhdCI6MTUwOTE1MzE0MH0.OzHtWc2Ag1uYvmX19-HZYbBLc8_A0xdUrO9OEYof8Mrd0eUKZYMutppiXCZBShpIP0TDpHpUooYiL1qgejI4lTkHGIUxmHvFuFdc0_8vWQWG_e9HikDyy0xte3iKjVALq3IYRql65pnAHfDFNH7kNT-mwxg38INu2ps4RDPiiXsIY6puRd-NBcP5PcQRYRPOL0HqnaEzblOGoWLmMN-PgsitGa8VzJMILc-TK5nR0K5cllrlWD_7VcIW85DLyBm2JbTK5xfAEepq3o97qLEWMtG40sZXeAch68gpIehXPynLMHO8G-axbnknbsljrSnwpvhZRe8RTI2GHFTWS8HAKw"}
+{"token":"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MDkxNTY3NDAsImlhdCI6MTUwOTE1MzE0MH0.OzHtWc2Ag1uYvmX19-HZYbBLc8_A0xdUrO9OEYof8Mrd0eUKZYMutppiXCZBShpIP0TDpHpUooYiL1qgejI4lTkHGIUxmHvFuFdc0_8vWQWG_e9HikDyy0xte3iKjVALq3IYRql65pnAHfDFNH7kNT-mwxg38INu2ps4RDPiiXsIY6puRd-NBcP5PcQRYRPOL0HqnaEzblOGoWLmMN-PgsitGa8VzJMILc-TK5nR0K5cllrlWD_7VcIW85DLyBm2JbTK5xfAEepq3o97qLEWMtG40sZXeAch68gpIehXPynLMHO8G-axbnknbsljrSnwpvhZRe8RTI2GHFTWS8HAKw"}
 ```
 
 * Use `token` from previous output after `Bearer <token_here>` in below example.
 ```
-	$ http GET localhost:8080/resource Authorization:"Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MDkxNTY3NDAsImlhdCI6MTUwOTE1MzE0MH0.OzHtWc2Ag1uYvmX19-HZYbBLc8_A0xdUrO9OEYof8Mrd0eUKZYMutppiXCZBShpIP0TDpHpUooYiL1qgejI4lTkHGIUxmHvFuFdc0_8vWQWG_e9HikDyy0xte3iKjVALq3IYRql65pnAHfDFNH7kNT-mwxg38INu2ps4RDPiiXsIY6puRd-NBcP5PcQRYRPOL0HqnaEzblOGoWLmMN-PgsitGa8VzJMILc-TK5nR0K5cllrlWD_7VcIW85DLyBm2JbTK5xfAEepq3o97qLEWMtG40sZXeAch68gpIehXPynLMHO8G-axbnknbsljrSnwpvhZRe8RTI2GHFTWS8HAKw"
+$ http GET localhost:8080/resource Authorization:"Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MDkxNTY3NDAsImlhdCI6MTUwOTE1MzE0MH0.OzHtWc2Ag1uYvmX19-HZYbBLc8_A0xdUrO9OEYof8Mrd0eUKZYMutppiXCZBShpIP0TDpHpUooYiL1qgejI4lTkHGIUxmHvFuFdc0_8vWQWG_e9HikDyy0xte3iKjVALq3IYRql65pnAHfDFNH7kNT-mwxg38INu2ps4RDPiiXsIY6puRd-NBcP5PcQRYRPOL0HqnaEzblOGoWLmMN-PgsitGa8VzJMILc-TK5nR0K5cllrlWD_7VcIW85DLyBm2JbTK5xfAEepq3o97qLEWMtG40sZXeAch68gpIehXPynLMHO8G-axbnknbsljrSnwpvhZRe8RTI2GHFTWS8HAKw"
 
-	HTTP/1.1 200 OK
-	Content-Length: 46
-	Content-Type: text/plain; charset=utf-8
-	Date: Sat, 28 Oct 2017 01:16:55 GMT
-	Strict-Transport-Security: max-age=63072000; includeSubDomains
+HTTP/1.1 200 OK
+Content-Length: 46
+Content-Type: text/plain; charset=utf-8
+Date: Sat, 28 Oct 2017 01:16:55 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains
 
-	{"data":"Gained access to protected resource"}
+{"data":"Gained access to protected resource"}
 ```
 
 
