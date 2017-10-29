@@ -38,7 +38,6 @@ func fatal(err error) {
 }
 
 func initKeys() {
-	keyPath := "./keys"
 	privKeyPath = filepath.Join(keyPath, "jwtsig-test-prv-ks.p12")
 	privKeyPass = "test123"
 	pubKeyPath = filepath.Join(keyPath, "jwtsig-test-pub-ks.pem")
