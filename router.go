@@ -14,11 +14,12 @@ import (
 	"golang.org/x/crypto/pkcs12"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/dgrijalva/jwt-go/request"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/jwtauth"
 )
 
+var tokenAuth *jwtauth.JwtAuth
 var (
 	// For simplicity these files are in the same folder as the app binary.
 	// You shouldn't do this in production.
@@ -37,6 +38,7 @@ func fatal(err error) {
 }
 
 func initKeys() {
+	keyPath := "./keys"
 	privKeyPath = filepath.Join(keyPath, "jwtsig-test-prv-ks.p12")
 	privKeyPass = "test123"
 	pubKeyPath = filepath.Join(keyPath, "jwtsig-test-pub-ks.pem")
@@ -49,31 +51,26 @@ func initKeys() {
 	//If successful assign it to signkey
 	signKey = sign.(*rsa.PrivateKey)
 
-	fatal(err)
-
 	verifyBytes, err := ioutil.ReadFile(pubKeyPath)
 	fatal(err)
-
-	verifyKey, err = jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
+	verifyKey, err := jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
 	fatal(err)
+
+	tokenAuth = jwtauth.New("RS256", signKey, verifyKey)
 }
 
+// UserCredentials ...
 type UserCredentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-type User struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
+// Response ...
 type Response struct {
 	Data string `json:"data"`
 }
 
+// Token ...
 type Token struct {
 	Token string `json:"token"`
 }
@@ -97,29 +94,31 @@ func NewRouter() *chi.Mux {
 		middleware.StripSlashes,
 	)
 
-	// router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	w.Write([]byte("welcome"))
-	// })
-
 	// Non-Protected Endpoint(s)
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("welcome to a public end point"))
+	})
+
 	router.Post("/login", LoginHandler)
 
 	// Protected Endpoints
 	router.Group(func(r chi.Router) {
-		r.Use(ValidateTokenMiddleware)
+		r.Use(jwtauth.Verifier(tokenAuth))
+		r.Use(jwtauth.Authenticator)
 		r.Get("/resource", ProtectedHandler)
 	})
 
 	return router
 }
 
+// ProtectedHandler ...
 func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
-
-	response := Response{"Gained access to protected resource"}
-	JsonResponse(response, w)
-
+	_, claims, _ := jwtauth.FromContext(r.Context())
+	response := Response{fmt.Sprintf("protected area. hi %v", claims["user_id"])}
+	JSONResponse(response, w)
 }
 
+// LoginHandler ...
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	var user UserCredentials
@@ -132,29 +131,17 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.ToLower(user.Username) != "someone" {
-		if user.Password != "p@ssword" {
-			w.WriteHeader(http.StatusForbidden)
-			fmt.Println("Error logging in")
-			fmt.Fprint(w, "Invalid credentials")
-			return
-		}
+	if (strings.ToLower(user.Username) != "someone") || (user.Password != "p@ssword") {
+		w.WriteHeader(http.StatusForbidden)
+		fmt.Println("Error logging in")
+		fmt.Fprint(w, "Invalid credentials")
+		return
 	}
 
-	token := jwt.New(jwt.SigningMethodRS256)
-	claims := make(jwt.MapClaims)
-	claims["exp"] = time.Now().Add(time.Hour * time.Duration(1)).Unix()
-	claims["iat"] = time.Now().Unix()
-	token.Claims = claims
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, "Error extracting the key")
-		fatal(err)
-	}
-
-	tokenString, err := token.SignedString(signKey)
-
+	_, tokenString, err := tokenAuth.Encode(jwtauth.Claims{"user_id": 123,
+		"exp": time.Now().Add(time.Hour * time.Duration(1)).Unix(),
+		"iat": time.Now().Unix(),
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintln(w, "Error while signing the token")
@@ -162,37 +149,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := Token{tokenString}
-	JsonResponse(response, w)
+	JSONResponse(response, w)
 
 }
 
-func ValidateTokenMiddleware(next http.Handler) http.Handler {
-
-	fn := func(w http.ResponseWriter, r *http.Request) {
-
-		token, err := request.ParseFromRequest(r, request.AuthorizationHeaderExtractor,
-			func(token *jwt.Token) (interface{}, error) {
-				return verifyKey, nil
-			})
-
-		if err == nil {
-			if token.Valid {
-				next.ServeHTTP(w, r)
-			} else {
-				w.WriteHeader(http.StatusUnauthorized)
-				fmt.Fprint(w, "Token is not valid")
-			}
-		} else {
-			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprint(w, "Unauthorized access to this resource")
-		}
-
-	}
-	return http.HandlerFunc(fn)
-
-}
-
-func JsonResponse(response interface{}, w http.ResponseWriter) {
+// JSONResponse ...
+func JSONResponse(response interface{}, w http.ResponseWriter) {
 
 	json, err := json.Marshal(response)
 	if err != nil {
