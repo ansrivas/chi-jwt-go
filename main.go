@@ -23,7 +23,8 @@ func main() {
 	flag.Parse()
 
 	if keyPath == "" {
-		log.Fatalln("Please pass the path to keys")
+		flag.Usage()
+		return
 	}
 
 	addr := ":8080"
