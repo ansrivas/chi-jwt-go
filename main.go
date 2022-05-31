@@ -13,10 +13,12 @@ import (
 
 var (
 	keyPath string
+	addr    string
 )
 
 func init() {
 	flag.StringVar(&keyPath, "keyPath", "", "path to a key files")
+	flag.StringVar(&addr, "addr", ":8080", "Server address to bind to, defaults to :8080")
 }
 
 func main() {
@@ -27,7 +29,6 @@ func main() {
 		return
 	}
 
-	addr := ":8080"
 	s := &http.Server{
 		Addr:           addr,
 		Handler:        NewRouter(),
